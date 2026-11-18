@@ -12,7 +12,7 @@ SOLARA BAY is an open-world crime game in three.js: explore the sun-soaked coast
 node serve.ts
 ```
 
-Then open http://localhost:8080 in desktop Chrome and click Play. WASD move, Shift sprint, Space jump, mouse to look, E enter car / interact, click to shoot, R reload, F punch, Esc pause.
+Then open http://localhost:8080 in desktop Chrome and click Play. WASD move, Shift sprint, Space jump, mouse to look, E enter car / interact, click to shoot, R reload, F punch, Esc pause. Tip: the pier at the south end of the boardwalk hides a cash stash — walk out to the end of it.
 
 ## The game
 

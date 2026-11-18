@@ -65,6 +65,8 @@ createServer((request, response) => {
   response.writeHead(200, {
     'content-type': MIME[extname(file).toLowerCase()] ?? 'application/octet-stream',
     'content-length': size,
+    // no-store: the game is edited live while testing, and a cached module
+    // would hide the newest fix behind a stale copy.
     'cache-control': 'no-store',
   });
   createReadStream(file).pipe(response);

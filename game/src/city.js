@@ -12,6 +12,18 @@ export const CITY = { minX: -240, maxX: 240, minZ: -240, maxZ: 280 };
 export const BEACH_Z = 225;   // sand starts here
 export const OCEAN_Z = 258;   // water starts here
 
+// The pier deck is a raised wooden platform (top at y = 0.9). Feet and
+// wheels stand on it instead of clipping through it: anything walking or
+// driving uses groundHeightAt to find the floor under it.
+export const PIER_DECK_Y = 0.9;
+export function groundHeightAt(x, z) {
+  // main deck: 16 wide, z 260..340
+  if (x >= -8 && x <= 8 && z >= 260 && z <= 340) return PIER_DECK_Y;
+  // end platform: 30 wide, z 336..352
+  if (x >= -15 && x <= 15 && z >= 336 && z <= 352) return PIER_DECK_Y;
+  return 0;
+}
+
 function box(w, h, d, mat, x, y, z, ry = 0) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
   m.position.set(x, y, z);
@@ -47,6 +59,9 @@ export function buildCity(scene) {
   sunLight.position.set(-180, 220, -140);
   sunLight.castShadow = true;
   sunLight.shadow.mapSize.set(2048, 2048);
+  // the shadow camera only covers the city core (180 m across): the beach,
+  // pier and hills fall outside it and render unshadowed, which is fine —
+  // shadows matter where the buildings and the driving are.
   sunLight.shadow.camera.left = -90; sunLight.shadow.camera.right = 90;
   sunLight.shadow.camera.top = 90; sunLight.shadow.camera.bottom = -90;
   sunLight.shadow.camera.far = 700;
@@ -60,8 +75,10 @@ export function buildCity(scene) {
 
   // ---- ground: grass base, roads, sidewalks, sand, ocean --------------------
   const groundMat = new THREE.MeshLambertMaterial({ color: 0x6d7a4a });
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1100, 1100), groundMat);
-  ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.08, 20);
+  // the grass base ends at the shoreline (z = 260): any further south and
+  // it would lie above the ocean plane and hide the sea from the pier.
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(560, 520), groundMat);
+  ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.08, 0);
   ground.receiveShadow = true;
   group.add(ground);
 

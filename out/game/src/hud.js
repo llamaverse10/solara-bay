@@ -63,7 +63,8 @@ export class HUD {
 
   drawMinimap() {
     const G = this.G, ctx = this.map;
-    const S = 200, W = 520; // world span shown
+    const S = 200, W = 520; // world span shown: 520 m across a 200 px map,
+    // so the whole city (480 m wide) fits with a small margin around it.
     const toX = (x) => (x + W / 2) / W * S;
     const toY = (z) => (z + W / 2) / W * S;
     ctx.clearRect(0, 0, S, S);

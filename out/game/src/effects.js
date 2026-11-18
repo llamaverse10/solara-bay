@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { makeBlobTexture } from './textures.js';
 
-const MAX = 240;
+const MAX = 240; // pool size: bursts recycle the oldest slot, never allocate
 
 export class Effects {
   constructor(scene) {

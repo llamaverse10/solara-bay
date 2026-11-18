@@ -216,9 +216,11 @@ function frame(now) {
   requestAnimationFrame(frame);
   let dt = (now - last) / 1000;
   last = now;
-  if (dt > 0.25) dt = 0.25;
+  if (dt > 0.25) dt = 0.25; // tab was hidden: never simulate more than a quarter second
   acc += dt;
   let n = 0;
+  // Headless screenshot mode runs the sim 12 steps a frame (slow GPU); the
+  // live game caps at 3 so a slow frame never spirals into a death loop.
   const maxSteps = isShotMode ? 12 : 3;
   while (acc >= STEP && n < maxSteps) { step(STEP); acc -= STEP; n++; }
   renderer.render(scene, camera);

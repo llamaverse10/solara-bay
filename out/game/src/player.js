@@ -2,6 +2,7 @@
 // third-person camera (drag to orbit, wheel to zoom), and the on-foot mesh.
 import * as THREE from 'three';
 import { clamp, lerp, angleLerp, pushOutCircle } from './util.js';
+import { groundHeightAt } from './city.js';
 
 const WALK_SPEED = 6, SPRINT_SPEED = 9.5, ACCEL = 42, JUMP_V = 7.5, GRAVITY = -22;
 
@@ -93,11 +94,18 @@ export function updatePlayer(G, dt) {
   }
   p.pos.x += p.vx * dt;
   p.pos.z += p.vz * dt;
-  // gravity / jump
+  // gravity / jump, with the floor under the player's feet: the pier deck
+  // is raised, so walking onto it steps up instead of clipping through.
+  // Walking off the deck's edge drops the floor to 0 and gravity does the
+  // rest — the player falls to the beach instead of floating.
+  const groundY = groundHeightAt(p.pos.x, p.pos.z);
   if (input.takePressed('Space') && p.onGround) { p.vy = JUMP_V; p.onGround = false; }
   p.vy += GRAVITY * dt;
   p.pos.y += p.vy * dt;
-  if (p.pos.y <= 0) { p.pos.y = 0; p.vy = 0; p.onGround = true; }
+  if (p.pos.y <= groundY) {
+    // step up onto a low ledge (the pier deck) rather than landing hard
+    p.pos.y = groundY; p.vy = 0; p.onGround = true;
+  }
   // collide with buildings
   for (const b of G.city.colliders) pushOutCircle(p.pos, 0.55, b);
   // walk animation

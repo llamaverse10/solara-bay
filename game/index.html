@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SOLARA BAY — Open-World Crime</title>
+<link rel="icon" href="data:,">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: #0e1420;
@@ -89,7 +90,7 @@
   <h2>Leo Marín owes the Marlin Club everything. Four jobs stand between him and
   freedom — steal cars, dodge the Solara Bay PD, and pull the Marina Job.
   A sun-soaked open city: drive it, walk it, own it.</h2>
-  <button id="play-btn">▶ &nbsp;START THE JOB</button>
+  <button id="play-btn" aria-label="Start the game">▶ &nbsp;START THE JOB</button>
   <div class="controls">
     <b>WASD</b> move / drive &nbsp;·&nbsp; <b>Mouse drag</b> camera &nbsp;·&nbsp; <b>Wheel</b> zoom<br>
     <b>E</b> steal / exit car &nbsp;·&nbsp; <b>Click</b> shoot &nbsp;·&nbsp; <b>F</b> punch &nbsp;·&nbsp; <b>R</b> reload<br>
@@ -101,13 +102,13 @@
 <div class="screen" id="pause">
   <h1>PAUSED</h1>
   <h2>Solara Bay waits for no one — except right now.</h2>
-  <button id="resume-btn">RESUME</button>
+  <button id="resume-btn" aria-label="Resume the game">RESUME</button>
 </div>
 
 <div class="screen" id="end">
   <div id="end-title">BUSTED</div>
   <h2 id="end-sub"></h2>
-  <button id="end-btn">Respawn</button>
+  <button id="end-btn" aria-label="Respawn after being busted or wasted">Respawn</button>
   <div class="controls"><button id="restart-btn" style="background:#33506b;font-size:15px;padding:10px 24px;margin-top:16px;">Keep playing</button></div>
 </div>
 

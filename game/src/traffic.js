@@ -20,12 +20,14 @@ function neighborNode(rng, n) {
   if (iz < ROAD_LINES.length - 1) opts.push({ x: n.x, z: ROAD_LINES[iz + 1] });
   return pick(rng, opts);
 }
-// Lane offset: right-hand traffic, 3.2 m from the road centre.
-function laneTarget(from, to) {
-  if (to.x > from.x) return { x: to.x, z: to.z + 3.2 };
-  if (to.x < from.x) return { x: to.x, z: to.z - 3.2 };
-  if (to.z > from.z) return { x: to.x - 3.2, z: to.z };
-  return { x: to.x + 3.2, z: to.z };
+// Lane offset: right-hand traffic, 3.2 m from the road centre. side -1 is
+// the oncoming lane, used when a car overtakes a slow one ahead of it.
+function laneTarget(from, to, side = 1) {
+  const o = 3.2 * side;
+  if (to.x > from.x) return { x: to.x, z: to.z + o };
+  if (to.x < from.x) return { x: to.x, z: to.z - o };
+  if (to.z > from.z) return { x: to.x - o, z: to.z };
+  return { x: to.x + o, z: to.z };
 }
 
 export function spawnTraffic(G) {
@@ -39,7 +41,8 @@ export function spawnTraffic(G) {
     car.driver = 'traffic';
     car.speed = rand(rng, 7, 11);
     G.cars.push(car);
-    G.traffic.push({ car, node, next, target: laneTarget(node, next), speed: car.speed });
+    G.traffic.push({ car, node, next, target: laneTarget(node, next), speed: car.speed,
+      blockedT: 0, overtake: false });
   }
   G.peds = [];
   for (let i = 0; i < 20; i++) {
@@ -76,7 +79,7 @@ export function updateTraffic(G, dt) {
     if (dist < 4) {
       t.node = t.next;
       t.next = neighborNode(Math.random, t.node);
-      t.target = laneTarget(t.node, t.next);
+      t.target = laneTarget(t.node, t.next, t.overtake ? -1 : 1);
     }
     const want = Math.atan2(dx, dz);
     let dh = want - c.heading;
@@ -84,6 +87,23 @@ export function updateTraffic(G, dt) {
     while (dh < -Math.PI) dh += Math.PI * 2;
     c.heading += Math.max(-1.6 * dt, Math.min(1.6 * dt, dh));
     const blocked = carAhead(G, c, 10);
+    // stuck behind a slow car for a while? Pull into the oncoming lane and
+    // overtake instead of sitting on its bumper; fall back once clear.
+    // The 0.8 s grace stops a car from swerving for a car that is itself
+    // about to turn off at the next junction.
+    if (blocked) {
+      t.blockedT += dt;
+      if (t.blockedT > 0.8 && !t.overtake) {
+        t.overtake = true;
+        t.target = laneTarget(t.node, t.next, -1);
+      }
+    } else {
+      t.blockedT = 0;
+      if (t.overtake) {
+        t.overtake = false;
+        t.target = laneTarget(t.node, t.next, 1);
+      }
+    }
     c.speed += ((blocked ? 0 : t.speed) - c.speed) * Math.min(1, 2 * dt);
     c.mesh.position.x += Math.sin(c.heading) * c.speed * dt;
     c.mesh.position.z += Math.cos(c.heading) * c.speed * dt;
@@ -94,6 +114,7 @@ export function updateTraffic(G, dt) {
       c.setPos(n.x + (Math.random() < 0.5 ? -3.2 : 3.2), n.z);
       t.node = n; t.next = neighborNode(Math.random, n);
       t.target = laneTarget(n, t.next);
+      t.blockedT = 0; t.overtake = false;
     }
   }
   // car-car collisions (traffic vs player car and each other)

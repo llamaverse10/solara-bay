@@ -3,7 +3,9 @@ export const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 export const lerp = (a, b, t) => a + (b - a) * t;
 export const TAU = Math.PI * 2;
 
-// Shortest signed angle difference, in (-PI, PI].
+// Shortest signed angle difference, in (-PI, PI]. Headings in this game
+// are measured clockwise from +Z (heading 0 faces +Z, PI/2 faces +X), so
+// a positive difference always means "turn right".
 export function angleDiff(a, b) {
   let d = (b - a) % TAU;
   if (d > Math.PI) d -= TAU;
@@ -61,6 +63,3 @@ export function distToSegment(x, z, ax, az, bx, bz) {
   const px = ax + t * dx, pz = az + t * dz;
   return Math.hypot(x - px, z - pz);
 }
-
-// Shared scratch objects so hot loops allocate nothing.
-export const _v = { a: null, b: null };

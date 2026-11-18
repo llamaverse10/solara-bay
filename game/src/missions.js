@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { spawnEnemy } from './combat.js';
 import { addWanted } from './police.js';
+import { groundHeightAt } from './city.js';
 
 const MISSIONS = [
   { id: 'm1', title: 'Wheels Up', reward: 400,
@@ -32,7 +33,8 @@ export function buildStashes(G) {
     const m = new THREE.Mesh(
       new THREE.BoxGeometry(0.7, 0.4, 0.7),
       new THREE.MeshLambertMaterial({ color: 0xffd23e, emissive: 0x664400 }));
-    m.position.set(s.x, 0.5, s.z);
+    // sit on the ground under the stash — on the pier that is the deck top
+    m.position.set(s.x, groundHeightAt(s.x, s.z) + 0.5, s.z);
     G.three.scene.add(m);
     G.stashMeshes.push(m);
   }
@@ -174,6 +176,8 @@ export function updateMissions(G, dt) {
           addWanted(G, 4, 'Bank job!');
         }
       } else {
+        // letting go of E drains the crack progress twice as fast as it
+        // builds, so a half-hearted attempt does not linger near done.
         M.vaultT = Math.max(0, M.vaultT - dt * 2);
       }
     } else {

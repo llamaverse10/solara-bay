@@ -1,5 +1,7 @@
 // save.js — localStorage save: money, rank, missions done, stashes found,
-// best stats. Versioned so an old save never breaks a new build.
+// best stats. Versioned so an old save never breaks a new build: bump the
+// KEY's v-number whenever the shape changes, and loadSave returns null for
+// anything it cannot read, so the game always starts clean instead of dying.
 const KEY = 'solara-bay-save-v1';
 
 export function loadSave() {

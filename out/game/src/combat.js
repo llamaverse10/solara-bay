@@ -6,6 +6,8 @@ import { clamp } from './util.js';
 import { addWanted, wastePlayer } from './police.js';
 
 const PISTOL = { mag: 12, damage: 34, headMul: 2, cooldown: 0.26, range: 120 };
+// One shared raycaster and two scratch vectors: shooting every frame must
+// never allocate, or the garbage collector will hitch the fire rate.
 const raycaster = new THREE.Raycaster();
 const _dir = new THREE.Vector3();
 const _origin = new THREE.Vector3();
@@ -89,7 +91,6 @@ export function tryShoot(G) {
     if (ref.hp <= 0) killEnemy(G, ref);
   } else if (tag === 'cop' && ref) {
     addWanted(G, 2, 'Cop down');
-    G.money += 0;
     G.fx.blood(h.point.x, h.point.y, h.point.z, 8);
     G.hud.hitmarker(false);
     // the cop goes down: remove it from the chase

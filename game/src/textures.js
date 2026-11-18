@@ -10,6 +10,8 @@ function canvasTex(w, h, draw, repeat) {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   if (repeat) { t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.RepeatWrapping; }
+  // 4x anisotropy keeps road lines and facades crisp at a grazing angle
+  // without the cost of full anisotropic filtering on every texture.
   t.anisotropy = 4;
   return t;
 }

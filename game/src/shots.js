@@ -48,7 +48,10 @@ export function stageShot(G, name) {
       collected: 0, vaultT: 0, nextT: 0, done: false };
     placePlayerInCar(G, 'coupe', 0xd8a020, -40, 62, Math.PI / 2, 22);
     G.wanted = 3;
-    const ahead = [[90, 62, -Math.PI / 2], [105, 55, -Math.PI / 2], [80, 70, -Math.PI / 2]];
+    // the roadblock sits just ahead of the player's line, close enough to
+    // read at capture: headless runs slow, so the player only closes a few
+    // dozen metres between staging and the shutter.
+    const ahead = [[25, 62, -Math.PI / 2], [40, 55, -Math.PI / 2], [15, 70, -Math.PI / 2]];
     for (const [x, z, h] of ahead) {
       const c = new Car(G.three.scene, 'police', 0xe8e8e8, x, z, h);
       c.driver = 'police'; c.speed = 20;
@@ -88,11 +91,13 @@ export function stageShot(G, name) {
     G.policeCars.push({ car: c, ramCooldown: 0 });
     hideBanner(G);
   } else if (name === '4-city') {
-    // the vista: boardwalk, pier, ocean, skyline — the world itself
+    // the vista: pier planks in the foreground, then beach, boardwalk,
+    // palms and the skyline — the whole world in one frame. The player
+    // stands on the pier deck itself, facing north into the city.
     G.money = 400;
     G.mission = { index: -1, stage: 0, target: null, text: '',
       collected: 0, vaultT: 0, nextT: 0, done: false };
-    placePlayerOnFoot(G, -24, 224, Math.PI); // face north, into the city
+    placePlayerOnFoot(G, 0, 320, Math.PI); // on the pier deck, face north
     G.camera.pitch = 0.42;
     G.camera.dist = 12;
     hideBanner(G);

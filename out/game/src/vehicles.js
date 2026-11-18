@@ -1,6 +1,7 @@
 // vehicles.js — car factory, arcade driving, enter/exit, car collisions.
 import * as THREE from 'three';
 import { clamp, lerp, pushOutCircle } from './util.js';
+import { groundHeightAt } from './city.js';
 
 const KINDS = {
   sedan: { len: 4.4, wid: 1.9, h: 0.72, cabin: 0.62, top: 1.35, max: 34, accel: 15 },
@@ -113,6 +114,8 @@ export function drivePlayerCar(G, car, dt) {
   car.mesh.position.x += Math.sin(car.heading) * car.speed * dt;
   car.mesh.position.z += Math.cos(car.heading) * car.speed * dt;
   car.mesh.rotation.y = car.heading;
+  // ride the ground under the car (the pier deck is raised)
+  car.mesh.position.y = groundHeightAt(car.x, car.z);
   // buildings
   let hit = false;
   for (const b of G.city.colliders) {
@@ -143,7 +146,11 @@ export function drivePlayerCar(G, car, dt) {
   return hit;
 }
 
-// Circle-circle push between two cars; exchanges a little speed.
+// Circle-circle push between two cars; exchanges a little speed. A rear-end
+// bump slows the car behind harder, so it falls back instead of sticking
+// to the bumper in front of it. The 0.7 dot threshold means the bump only
+// counts as a rear-end when the cars are roughly nose-to-tail, not in a
+// side swipe — those keep the even split.
 export function collideCars(a, b) {
   const dx = b.x - a.x, dz = b.z - a.z;
   const d = Math.hypot(dx, dz);
@@ -154,7 +161,14 @@ export function collideCars(a, b) {
   a.mesh.position.x -= nx * push; a.mesh.position.z -= nz * push;
   b.mesh.position.x += nx * push; b.mesh.position.z += nz * push;
   const rel = Math.abs(a.speed - b.speed);
-  if (rel > 6) { a.speed *= 0.7; b.speed *= 0.7; }
+  if (rel > 6) {
+    // who rear-ended whom: the car whose heading points at the other one
+    const aRear = (Math.sin(a.heading) * nx + Math.cos(a.heading) * nz) > 0.7 && a.speed > b.speed;
+    const bRear = (Math.sin(b.heading) * -nx + Math.cos(b.heading) * -nz) > 0.7 && b.speed > a.speed;
+    if (aRear) { a.speed *= 0.5; b.speed *= 0.85; }
+    else if (bRear) { b.speed *= 0.5; a.speed *= 0.85; }
+    else { a.speed *= 0.7; b.speed *= 0.7; }
+  }
   return true;
 }
 

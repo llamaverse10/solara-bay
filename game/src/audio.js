@@ -81,6 +81,7 @@ export class AudioSys {
     this.engineGain.gain.setTargetAtTime(0.05 + speed01 * 0.06, this.now(), 0.1);
   }
   // Simple sunset groove: a bass line + hats, scheduled a bar ahead.
+  // One tick is a 16th note at 240 ms, so the loop breathes at ~62 BPM.
   startMusic() {
     if (!this.ctx || this.musicTimer) return;
     const bass = [55, 0, 65.4, 0, 49, 0, 58.3, 73.4];

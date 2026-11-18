@@ -51,6 +51,8 @@ export function updatePolice(G, dt) {
   const playerSpeed = p.car ? Math.abs(p.car.speed) : Math.hypot(p.vx, p.vz);
 
   // ---- heat decay: unseen for a while and the stars fall off ---------------
+  // The wait grows with the heat (12 s + 3 s a star), so a 5-star chase
+  // needs a long, clean break while 1 star fades fast on its own.
   let seen = false;
   for (const u of G.policeCars) {
     if (Math.hypot(u.car.x - px, u.car.z - pz) < 55) { seen = true; break; }

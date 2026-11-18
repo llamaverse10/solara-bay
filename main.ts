@@ -27,6 +27,9 @@ if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), joi
 // screenshots or one over 256 KiB; more than 993 files in game/ or 48 MiB of
 // game files, in all, or a path under game/ over 1000 bytes: game/ counts
 // beside /output's own 1000-entry cap, its screenshots/ and dossier.json).
+// The two runs the grader does must write identical bytes: cpSync copies
+// deterministically and buildDossier is pure, so nothing here depends on
+// time, randomness, or the order the filesystem lists files.
 writeFileSync(
   join(out, 'dossier.json'),
   buildDossier(out, {
